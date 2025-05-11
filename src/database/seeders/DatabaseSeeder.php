@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Wallet;
 use Illuminate\Database\Seeder;
+
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +15,31 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->seedUsers();
+    }
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+    private function seedUsers()
+    {
+        $ahmad = User::factory()->create([
+            'name' => 'ahmad',
+            'email' => 'ahmad@test.com',
+            'password' => '123@test',
+        ]);
+
+        $reza = User::factory()->create([
+            'name' => 'reza',
+            'email' => 'reza@test.com',
+            'password' => '123@test',
+        ]);
+
+        Wallet::create([
+            'balance' => 15,
+            'user_id' => $reza->id
+        ]);
+
+        Wallet::create([
+            'balance' => 30,
+            'user_id' => $ahmad->id
         ]);
     }
 }
