@@ -4,10 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class wallet extends Model
+class Order extends Model
 {
     protected $fillable = [
         'user_id',
-        'balance',
+        'type',
+        'status',
+        'amount',
+        'remaining_amount',
+        'price',
     ];
 }
