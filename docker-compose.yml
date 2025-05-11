@@ -8,7 +8,7 @@ services:
       - ./src:/var/www/html
     networks:
       - app-network
-    container_name: zitazi-php
+    container_name: tlyn-php
 
   nginx:
     image: nginx:latest
@@ -21,7 +21,7 @@ services:
       - php
     networks:
       - app-network
-    container_name: zitazi-nginx
+    container_name: tlyn-nginx
     restart: unless-stopped
 
 
@@ -35,7 +35,7 @@ services:
       - ./mysql:/var/lib/mysql
     networks:
       - app-network
-    container_name: zitazi-mysql
+    container_name: tlyn-mysql
     restart: unless-stopped
 
 
@@ -47,7 +47,7 @@ services:
       - ./redis:/data
     networks:
       - app-network
-    container_name: zitazi-redis
+    container_name: tlyn-redis
     restart: unless-stopped
 
   horizon:
@@ -63,7 +63,7 @@ services:
       - mysql
       - redis
     command: php artisan horizon
-    container_name: zitazi-horizon
+    container_name: tlyn-horizon
     restart: unless-stopped
 
 

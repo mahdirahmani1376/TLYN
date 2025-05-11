@@ -25,19 +25,19 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             set -e
-            cd /var/www/zitazi
+            cd /var/www/tlyn
 
             echo "🔄 Pulling latest code..."
             git pull origin master
 
             echo "📦 Running composer install inside container..."
-            docker exec zitazi-php composer install --no-dev --optimize-autoloader
+            docker exec tlyn-php composer install --no-dev --optimize-autoloader
 
             echo "🧹 Running artisan migrate inside container..."
-            docker exec zitazi-php php artisan migrate --force
+            docker exec tlyn-php php artisan migrate --force
 
             echo "🚀 Restarting Horizon inside container..."
-            docker exec zitazi-horizon php artisan horizon:terminate
+            docker exec tlyn-horizon php artisan horizon:terminate
 
             echo "🧹 Cleaning unused Docker images and containers..."
             docker image prune -af
