@@ -27,4 +27,4 @@ Route::group([
     Route::delete('/{order}', 'destroy');
 });
 
-Route::get('transactions', TransactionController::class)->middleware('auth:sanctum');
+Route::get('transactions', [TransactionController::class, 'index'])->middleware('auth:sanctum');
