@@ -14,7 +14,6 @@ class OrderController extends Controller
 {
     public function index()
     {
-        dd(1);
         return Response::json(
             OrderResource::collection(
                 Order::with([
@@ -24,7 +23,7 @@ class OrderController extends Controller
                     ],
                     'buyTrade',
                     'sellTrade'
-                ])
+                ])->get()
             )
         );
     }
