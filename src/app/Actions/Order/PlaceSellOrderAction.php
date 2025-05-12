@@ -8,15 +8,15 @@ use App\Jobs\MatchOrderJob;
 use App\Models\Order;
 use App\Models\User;
 
-class PlaceBuyOrderAction
+class PlaceSellOrderAction
 {
     public function execute(User $user, array $data)
     {
-        $this->validateUserBalanceToBuy($user, $data);
+        $this->validateUserBalanceToSell($user, $data);
 
         $order = Order::create([
             'user_id' => $user->id,
-            'type' => OrderTypeEnum::BUY,
+            'type' => OrderTypeEnum::SELL,
             'amount' => $data['amount'],
             'remaining_amount' => $data['amount'],
             'price' => $data['price']
@@ -27,11 +27,11 @@ class PlaceBuyOrderAction
         return $order;
     }
 
-    private function validateUserBalanceToBuy($user, $data): void
+    private function validateUserBalanceToSell($user, $data): void
     {
-        $totalOrderAmount = $data['amount'] * $data['price'];
+        $totalOrderAmount = $data['amount'];
 
-        $userBalance = $user->wallet->rial_balance;
+        $userBalance = $user->wallet->gold_balance;
 
         if ($userBalance <= $totalOrderAmount) {
             throw UserHasInsufficientBalanceException::make();
