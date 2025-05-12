@@ -18,13 +18,21 @@ Route::group([
 
 Route::group([
     'controller' => OrderController::class,
-    'prefix' => 'orders',
+    'prefix' => '/orders',
     'middleware' => 'auth:sanctum'
 ], function () {
     Route::get('/', 'index');
+    Route::get('{order}', 'show');
     Route::post('/buy', 'buy');
     Route::post('/sell', 'sell');
     Route::delete('/{order}', 'destroy');
 });
 
-Route::get('transactions', [TransactionController::class, 'index'])->middleware('auth:sanctum');
+Route::group([
+    'controller' => TransactionController::class,
+    'prefix' => '/transactions',
+    'middleware' => 'auth:sanctum'
+], function () {
+    Route::get('/', 'index');
+    Route::get('/{transaction}', 'show');
+});

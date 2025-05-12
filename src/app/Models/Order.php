@@ -6,6 +6,7 @@ use App\Enums\OrderStatusEnum;
 use App\Enums\OrderTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
@@ -27,6 +28,15 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function buyTrade(): HasOne
+    {
+        return $this->hasOne(Trade::class, 'buy_order_id');
+    }
+
+    public function sellTrade(): HasOne
+    {
+        return $this->hasOne(Trade::class, 'sell_order_id');
+    }
     public function matchedOrderType(): OrderTypeEnum
     {
         return $this->type == OrderTypeEnum::BUY ? OrderTypeEnum::SELL : OrderTypeEnum::BUY;
