@@ -25,9 +25,9 @@ return new class extends Migration {
                 ->on('trades');
 
             $table->string('type');
-            $table->string('asset');
             $table->string('description')->nullable();
 
+            $table->decimal('amount', 10, 3);
             $table->timestamps();
         });
     }

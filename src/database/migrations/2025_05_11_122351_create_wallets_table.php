@@ -19,7 +19,8 @@ return new class extends Migration {
                 ->on('users')
                 ->cascadeOnDelete();
 
-            $table->decimal('balance', 10, 3)->default(0);
+            $table->decimal('gold_balance', 10, 3)->default(0);
+            $table->bigInteger('rial_balance')->default(0);
 
             $table->timestamps();
         });
