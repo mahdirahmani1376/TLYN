@@ -2,9 +2,9 @@
 
 namespace App\Actions\Order;
 
+use App\Enums\OrderStatusEnum;
 use App\Enums\OrderTypeEnum;
 use App\Exceptions\UserHasInsufficientBalanceException;
-use App\Jobs\MatchOrderJob;
 use App\Models\Order;
 use App\Models\User;
 
@@ -19,10 +19,9 @@ class PlaceSellOrderAction
             'type' => OrderTypeEnum::SELL,
             'amount' => $data['amount'],
             'remaining_amount' => $data['amount'],
-            'price' => $data['price']
+            'price' => $data['price'],
+            'status' => OrderStatusEnum::PENDING
         ]);
-
-        MatchOrderJob::dispatch($order);
 
         return $order;
     }
@@ -33,7 +32,7 @@ class PlaceSellOrderAction
 
         $userBalance = $user->wallet->gold_balance;
 
-        if ($userBalance <= $totalOrderAmount) {
+        if ($userBalance < $totalOrderAmount) {
             throw UserHasInsufficientBalanceException::make();
         }
     }

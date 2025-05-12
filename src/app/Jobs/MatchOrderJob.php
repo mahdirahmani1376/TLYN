@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Actions\Commission\CalculateCommissionAction;
 use App\Enums\OrderStatusEnum;
+use App\Enums\OrderTypeEnum;
 use App\Models\Order;
 use App\Models\Trade;
 use App\Models\Transaction;
@@ -19,13 +20,35 @@ class MatchOrderJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(private readonly Order $order)
+    public function __construct()
     {
     }
 
     public function handle(CalculateCommissionAction $calculateCommissionAction): void
     {
         DB::beginTransaction();
+
+        $buyOrders = Order::query()
+            ->whereIn('status', [
+                OrderStatusEnum::PENDING,
+                OrderStatusEnum::PARTIALLY_FILLED
+            ])
+            ->where('type', OrderTypeEnum::BUY)
+            ->get()
+            ->groupBy('price');
+
+        $sellOrders = Order::query()
+            ->whereIn('status', [
+                OrderStatusEnum::PENDING,
+                OrderStatusEnum::PARTIALLY_FILLED
+            ])
+            ->where('type', OrderTypeEnum::SELL)
+            ->get()
+            ->groupBy('price');
+
+
+        dd($buyOrders->toArray(), $sellOrders->toArray());
+
 
         $matchingOrder = Order::firstWhere([
             'type' => $this->order->matchedOrderType()->value,
