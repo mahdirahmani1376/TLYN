@@ -10,7 +10,7 @@ class Transaction extends Model
         'user_id',
         'trade_id',
         'type',
-        'asset',
         'description',
+        'amount',
     ];
 }
