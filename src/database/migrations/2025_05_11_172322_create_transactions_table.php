@@ -27,7 +27,7 @@ return new class extends Migration {
             $table->string('type');
             $table->string('description')->nullable();
 
-            $table->decimal('amount', 10, 3);
+            $table->bigInteger('amount');
             $table->timestamps();
         });
     }

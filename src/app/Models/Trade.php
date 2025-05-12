@@ -12,5 +12,6 @@ class Trade extends Model
         'price',
         'total',
         'amount',
+        'commission',
     ];
 }

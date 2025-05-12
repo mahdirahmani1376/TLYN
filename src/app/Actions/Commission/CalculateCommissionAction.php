@@ -2,15 +2,24 @@
 
 namespace App\Actions\Commission;
 
-use App\Models\Order;
+use App\Models\Commission;
 
 class CalculateCommissionAction
 {
-    public function execute(Order $order)
+    public function execute($amount, $rialPrice)
     {
-        $total = $order->price * $order->amount;
-        $orderAmount = $order->amount;
+        $commission = Commission::query()
+            ->where('min_amount', '>=', $amount)
+            ->first();
 
-        return $total * 0.02;
+        $totalCommissionAmount = ($amount * $rialPrice) * ($commission->rate / 100);
+
+        if ($totalCommissionAmount < $commission->min_fee) {
+            $totalCommissionAmount = $commission->min_fee;
+        } else if ($totalCommissionAmount > $commission->max_fee) {
+            $totalCommissionAmount = $commission->max_fee;
+        }
+
+        return $totalCommissionAmount;
     }
 }
