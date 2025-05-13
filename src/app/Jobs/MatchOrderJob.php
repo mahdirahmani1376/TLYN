@@ -17,5 +17,4 @@ class MatchOrderJob implements ShouldQueue
     {
         $orderMatchAction->execute();
     }
-
 }

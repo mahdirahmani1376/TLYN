@@ -10,7 +10,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('test-order-book', function () {
-    MatchOrderJob::dispatchSync();
+    MatchOrderJob::dispatch();
 });
 
 Artisan::command('match-orders', function () {
