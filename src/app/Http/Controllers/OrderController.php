@@ -23,7 +23,26 @@ class OrderController extends Controller
                     ],
                     'buyTrade',
                     'sellTrade'
-                ])->get()
+                ])->where('user_id', auth()->id())->get()
+            )
+        );
+    }
+
+    public function show(int $orderId)
+    {
+        return Response::json(
+            OrderResource::collection(
+                Order::with([
+                    'user' => [
+                        'transactions',
+                        'wallet'
+                    ],
+                    'buyTrade',
+                    'sellTrade'
+                ])
+                    ->where('user_id', auth()->id())
+                    ->where('id', $orderId)
+                    ->get()
             )
         );
     }
@@ -48,5 +67,17 @@ class OrderController extends Controller
         $order = $placeSellOrderAction->execute(Auth::user(), $placeBuyOrderRequest->validated());
 
         return Response::json(OrderResource::make($order));
+    }
+
+    public function cancel(int $orderId)
+    {
+        Order::where([
+            'id' => $orderId,
+            'user_id' => auth()->id()
+        ])->firstOrFail();
+
+        return Response::json([
+            'message' => 'order cancelled successfully'
+        ]);
     }
 }

@@ -21,18 +21,9 @@ Route::group([
     'prefix' => '/orders',
     'middleware' => 'auth:sanctum'
 ], function () {
-    Route::get('/', 'index');
-    Route::get('{order}', 'show');
-    Route::post('/buy', 'buy');
-    Route::post('/sell', 'sell');
-    Route::delete('/{order}', 'destroy');
-});
-
-Route::group([
-    'controller' => TransactionController::class,
-    'prefix' => '/transactions',
-    'middleware' => 'auth:sanctum'
-], function () {
-    Route::get('/', 'index');
-    Route::get('/{transaction}', 'show');
+    Route::get('/', 'index')->name('orders.index');
+    Route::get('{orderId}', 'show')->name('orders.show');
+    Route::post('/buy', 'buy')->name('orders.buy');
+    Route::post('/sell', 'sell')->name('orders.sell');
+    Route::post('/{orderId}', 'cancel')->name('orders.cancel');
 });

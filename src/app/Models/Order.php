@@ -47,6 +47,11 @@ class Order extends Model
         $status = $this->amount - $amount == 0 ? OrderStatusEnum::FILLED : OrderStatusEnum::PARTIALLY_FILLED;
     }
 
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class, 'wallet_id');
+    }
+
     public static function getBuyOrderGroupedBy()
     {
         return static::query()

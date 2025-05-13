@@ -13,7 +13,6 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user_id' => UserResource::make($this->user),
             'type' => $this->type,
             'status' => $this->status,
             'amount' => $this->amount,
@@ -21,6 +20,9 @@ class OrderResource extends JsonResource
             'price' => $this->price / 10,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'buy_trade' => TradeResource::make($this->whenLoaded('buyTrade')),
+            'sell_trade' => TradeResource::make($this->whenLoaded('sellTrade')),
+            'user' => UserResource::make($this->whenLoaded('user')),
         ];
     }
 }

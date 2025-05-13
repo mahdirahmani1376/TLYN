@@ -22,7 +22,8 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'updated_at' => $this->updated_at,
+            'transactions' => TransactionResource::collection($this->whenLoaded('transactions')),
+            'wallet' => WalletResource::make($this->whenLoaded('wallet')),
         ];
     }
 }
