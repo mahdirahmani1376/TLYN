@@ -34,7 +34,7 @@ I created an order book system and implemented core required things to consider 
 - race condition checking via transactions and DB locks
 - match buy and sell orders efficiently to ensure database performance
 - after a user places and order a matching job will be dispatched every second as a cronjob to make trades
-
+- Price is a Value Object that uses Casts to ensure both rial and toman support
 ## Tests
 
 - feature test are available both for partial buy and partial sell condition
