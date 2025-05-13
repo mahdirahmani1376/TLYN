@@ -52,8 +52,8 @@ class MatchOrderAction
                 DB::beginTransaction();
 
                 try {
-//                    $sellOrder->lockForUpdate();
-//                    $buyOrder->lockForUpdate();
+                    $sellOrder->lockForUpdate();
+                    $buyOrder->lockForUpdate();
 
                     $commission = $this->calculateCommissionAction->execute($minQuantityToMatch, $buyOrder->price);
 
