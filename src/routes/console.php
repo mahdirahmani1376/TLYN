@@ -1,5 +1,7 @@
 <?php
 
+use App\Actions\Order\MatchOrderAction;
+use App\Jobs\MatchOrderJob;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -8,5 +10,9 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('test-order-book', function () {
-    \App\Jobs\MatchOrderJob::dispatchSync();
+    MatchOrderJob::dispatchSync();
+});
+
+Artisan::command('match-orders', function () {
+    app(MatchOrderAction::class)->execute();
 });

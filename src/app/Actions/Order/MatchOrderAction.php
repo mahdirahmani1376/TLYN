@@ -39,8 +39,13 @@ class MatchOrderAction
     {
         /** @var Order $buyOrder */
         foreach ($buyGroup as $buyOrder) {
+
             /** @var Order $sellOrder */
             foreach ($matchedSellGroup as $sellOrder) {
+
+                if ($sellOrder->remaining_amount == 0) {
+                    break;
+                }
 
                 $minQuantityToMatch = min($buyOrder->remaining_amount, $sellOrder->remaining_amount);
 
@@ -51,6 +56,7 @@ class MatchOrderAction
                     $buyOrder->lockForUpdate();
 
                     $commission = $this->calculateCommissionAction->execute($minQuantityToMatch, $buyOrder->price);
+
                     $trade = Trade::create([
                         'amount' => $minQuantityToMatch,
                         'buy_order_id' => $buyOrder->id,
@@ -59,7 +65,6 @@ class MatchOrderAction
                         'total' => $buyOrder->price * $minQuantityToMatch,
                         'commission' => $commission
                     ]);
-
 
                     $buyOrder->remaining_amount -= $minQuantityToMatch;
                     $buyOrder->save();
@@ -71,11 +76,11 @@ class MatchOrderAction
                     $this->processSellOrder($sellOrder, $trade);
 
 
-                    if ($sellOrder->remaining_amount <= 0) {
+                    if ($sellOrder->remaining_amount == 0) {
                         $this->markOrderAsFilled($sellOrder);
                     }
 
-                    if ($buyOrder->remaining_amount <= 0) {
+                    if ($buyOrder->remaining_amount == 0) {
                         $this->markOrderAsFilled($buyOrder);
                         DB::commit();
                         break;
