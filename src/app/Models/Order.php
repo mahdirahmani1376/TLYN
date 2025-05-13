@@ -55,9 +55,7 @@ class Order extends Model
     public static function getOrderBook()
     {
         return static::query()
-            ->whereIn('status', [
-                OrderStatusEnum::PENDING,
-            ])
+            ->where('status', OrderStatusEnum::PENDING)
             ->get()
             ->groupBy(['price', function ($item) {
                 return $item['type'];
