@@ -16,6 +16,7 @@ cd ../
 docker compose up -d --build
 docker exec -it tlyn-php composer install
 docker exec -it tlyn-php php artisan migrate --seed
+docker exec -it tlyn-php php artisan test
 ```
 
 ## Postman link
@@ -28,16 +29,13 @@ https://app.getpostman.com/join-team?invite_code=a9c9f5ef6363343aaf4234445f81284
 2. Place orders or view your user orders
 
 ## Project description based on task
-
 I created an order book system and implemented core required things to consider such as:
 
 - race condition checking via transactions and DB locks
 - match buy and sell orders efficiently to ensure database performance
 - after a user places and order a matching job will be dispatched every second as a cronjob to make trades
 
-##### User Authentication and Authorization
+## Tests
 
-- Authentication is scaffolded with sanctum that is built-in laravel
-- Caching is done by redis.
-
+- feature test are available both for partial buy and partial sell condition
 
