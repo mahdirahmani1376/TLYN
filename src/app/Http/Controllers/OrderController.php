@@ -17,10 +17,6 @@ class OrderController extends Controller
         return Response::json(
             OrderResource::collection(
                 Order::with([
-                    'user' => [
-                        'transactions',
-                        'wallet'
-                    ],
                     'buyTrade',
                     'sellTrade'
                 ])->where('user_id', auth()->id())->get()
@@ -33,10 +29,6 @@ class OrderController extends Controller
         return Response::json(
             OrderResource::collection(
                 Order::with([
-                    'user' => [
-                        'transactions',
-                        'wallet'
-                    ],
                     'buyTrade',
                     'sellTrade'
                 ])

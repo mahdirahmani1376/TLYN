@@ -10,21 +10,10 @@ use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-
-        return response()->json(
-            UserResource::collection(
-                User::all()
-            )
-        );
-    }
-
     public function register(
         StoreUserRequest       $request,
         StoreUserAction        $storeUserAction,
@@ -57,7 +46,7 @@ class UserController extends Controller
     {
         return response()->json(
             UserResource::make(
-                Auth::user()
+                Auth::user()->load('wallet', 'orders', 'transactions')
             )
         );
     }
