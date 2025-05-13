@@ -52,7 +52,7 @@ class Order extends Model
         return $this->hasOne(Wallet::class, 'wallet_id');
     }
 
-    public static function getBuyOrderGroupedBy()
+    public static function getBuyOrdersGroupedByPrice()
     {
         return static::query()
             ->whereIn('status', [
@@ -64,7 +64,7 @@ class Order extends Model
             ->groupBy('price');
     }
 
-    public static function getSellOrderGroupedBy()
+    public static function getSellOrdersGroupedByPrice()
     {
         return static::query()
             ->whereIn('status', [

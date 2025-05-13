@@ -20,8 +20,8 @@ class OrderMatchAction
 
     public function execute()
     {
-        $buyOrdersGroup = Order::getBuyOrderGroupedBy();
-        $sellOrdersGroup = Order::getSellOrderGroupedBy();
+        $buyOrdersGroup = Order::getBuyOrdersGroupedByPrice();
+        $sellOrdersGroup = Order::getSellOrdersGroupedByPrice();
 
         foreach ($buyOrdersGroup as $buyGroupKey => $buyGroup) {
             if (empty($sellOrdersGroup[$buyGroupKey])) {
