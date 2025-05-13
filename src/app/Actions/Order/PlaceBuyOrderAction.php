@@ -23,6 +23,11 @@ class PlaceBuyOrderAction
             'status' => OrderStatusEnum::PENDING
         ]);
 
+        $updatedRialBalance = $user->wallet->rial_balance - ($data['price'] * $data['amount']);
+        $user->wallet->update([
+            'rial_balance' => $updatedRialBalance
+        ]);
+
         return $order;
     }
 

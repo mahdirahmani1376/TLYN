@@ -67,4 +67,14 @@ class Order extends Model
             ->get()
             ->groupBy('price');
     }
+
+    public function isBuy()
+    {
+        return $this->type == OrderTypeEnum::BUY;
+    }
+
+    public function isSell()
+    {
+        return $this->type == OrderTypeEnum::SELL;
+    }
 }

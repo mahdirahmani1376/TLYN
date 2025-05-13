@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Order\CancelOrderAction;
 use App\Actions\Order\PlaceBuyOrderAction;
 use App\Actions\Order\PlaceSellOrderAction;
 use App\Http\Requests\PlaceOrderRequest;
@@ -61,12 +62,14 @@ class OrderController extends Controller
         return Response::json(OrderResource::make($order));
     }
 
-    public function cancel(int $orderId)
+    public function cancel(int $orderId, CancelOrderAction $cancelOrderAction)
     {
-        Order::where([
+        $order = Order::where([
             'id' => $orderId,
             'user_id' => auth()->id()
         ])->firstOrFail();
+
+        $cancelOrderAction->execute($order);
 
         return Response::json([
             'message' => 'order cancelled successfully'
