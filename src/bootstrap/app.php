@@ -1,6 +1,6 @@
 <?php
 
-use App\Actions\Order\OrderMatchAction;
+use App\Actions\Order\MatchOrderAction;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->job(OrderMatchAction::class)->everySecond();
+        $schedule->job(MatchOrderAction::class)->everySecond();
     })
     ->withMiddleware(function (Middleware $middleware) {
         //

@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Actions\Order\OrderMatchAction;
+use App\Actions\Order\MatchOrderAction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,7 +13,7 @@ class MatchOrderJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function handle(OrderMatchAction $orderMatchAction): void
+    public function handle(MatchOrderAction $orderMatchAction): void
     {
         $orderMatchAction->execute();
     }

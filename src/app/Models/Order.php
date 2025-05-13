@@ -41,12 +41,6 @@ class Order extends Model
     {
         return $this->type == OrderTypeEnum::BUY ? OrderTypeEnum::SELL : OrderTypeEnum::BUY;
     }
-
-    public function fillOrder($amount)
-    {
-        $status = $this->amount - $amount == 0 ? OrderStatusEnum::FILLED : OrderStatusEnum::PARTIALLY_FILLED;
-    }
-
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class, 'wallet_id');
@@ -57,7 +51,6 @@ class Order extends Model
         return static::query()
             ->whereIn('status', [
                 OrderStatusEnum::PENDING,
-                OrderStatusEnum::PARTIALLY_FILLED
             ])
             ->where('type', OrderTypeEnum::BUY)
             ->get()
@@ -69,7 +62,6 @@ class Order extends Model
         return static::query()
             ->whereIn('status', [
                 OrderStatusEnum::PENDING,
-                OrderStatusEnum::PARTIALLY_FILLED
             ])
             ->where('type', OrderTypeEnum::SELL)
             ->get()

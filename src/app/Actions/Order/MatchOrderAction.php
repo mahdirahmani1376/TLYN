@@ -10,7 +10,7 @@ use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class OrderMatchAction
+class MatchOrderAction
 {
     public function __construct(
         private CalculateCommissionAction $calculateCommissionAction
