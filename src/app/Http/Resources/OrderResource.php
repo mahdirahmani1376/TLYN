@@ -17,7 +17,7 @@ class OrderResource extends JsonResource
             'status' => $this->status,
             'amount' => $this->amount,
             'remaining_amount' => $this->remaining_amount,
-            'price' => $this->price / 10,
+            'price' => $this->price->formatted(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'buy_trade' => TradeResource::make($this->whenLoaded('buyTrade')),

@@ -63,14 +63,14 @@ class MatchOrderAction
         $sellOrder->lockForUpdate();
         $buyOrder->lockForUpdate();
 
-        $commission = $this->calculateCommissionAction->execute($minQuantityToMatch, $buyOrder->price);
+        $commission = $this->calculateCommissionAction->execute($minQuantityToMatch, $buyOrder->price->rial());
 
         $trade = Trade::create([
             'amount' => $minQuantityToMatch,
             'buy_order_id' => $buyOrder->id,
             'sell_order_id' => $sellOrder->id,
             'price' => $buyOrder->price,
-            'total' => $buyOrder->price * $minQuantityToMatch,
+            'total' => $buyOrder->price->rial() * $minQuantityToMatch,
             'commission' => $commission
         ]);
 
@@ -92,7 +92,7 @@ class MatchOrderAction
             'type' => 'buy_order',
             'description' => "order filled for buy",
             'trade_id' => $trade->id,
-            'amount' => $buyOrder->price * $trade->amount * -1
+            'amount' => $buyOrder->price->rial() * $trade->amount * -1
         ]);
 
         Transaction::create([
@@ -126,7 +126,7 @@ class MatchOrderAction
             'type' => 'sell_order',
             'description' => "order filled for sell",
             'trade_id' => $trade->id,
-            'amount' => $sellOrder->price * $trade->amount
+            'amount' => $sellOrder->price->rial() * $trade->amount
         ]);
 
         Transaction::create([

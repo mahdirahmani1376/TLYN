@@ -2,8 +2,13 @@
 
 namespace App\Models;
 
+use App\Casts\PriceCast;
+use App\ValueObjects\Price;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property Price $price
+ */
 class Trade extends Model
 {
     protected $fillable = [
@@ -13,5 +18,9 @@ class Trade extends Model
         'total',
         'amount',
         'commission',
+    ];
+
+    protected $casts = [
+        'price' => PriceCast::class,
     ];
 }

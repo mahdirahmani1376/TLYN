@@ -15,7 +15,7 @@ class TradeResource extends JsonResource
             'id' => $this->id,
             'buy_order_id' => $this->buy_order_id,
             'sell_order_id' => $this->sell_order_id,
-            'price' => $this->price,
+            'price' => $this->price->formatted(),
             'total' => $this->total,
             'amount' => $this->amount,
             'commission' => $this->commission,
