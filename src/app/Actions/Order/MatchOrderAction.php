@@ -23,7 +23,7 @@ class MatchOrderAction
     {
         Order::getOrderBook()
             ->filter(function (Collection $orderGroup, int $key) {
-                return $orderGroup->has(OrderTypeEnum::BUY->value, $orderGroup->has(OrderTypeEnum::SELL->value));
+                return $orderGroup->has(OrderTypeEnum::BUY->value, OrderTypeEnum::SELL->value);
             })
             ->each(function ($item) {
                 $buyOrders = $item['buy'];
@@ -138,10 +138,8 @@ class MatchOrderAction
         ]);
 
         $wallet = $sellOrder->user->wallet;
-
         $wallet->gold_balance -= $trade->amount;
         $wallet->rial_balance += $trade->total;
-
         $wallet->save();
 
     }

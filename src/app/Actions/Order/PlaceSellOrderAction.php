@@ -23,11 +23,6 @@ class PlaceSellOrderAction
             'status' => OrderStatusEnum::PENDING
         ]);
 
-        $updatedGoldBalance = $user->wallet->gold_balance - $data['amount'];
-        $user->wallet->update([
-            'gold_balance' => $updatedGoldBalance
-        ]);
-
         return $order;
     }
 
