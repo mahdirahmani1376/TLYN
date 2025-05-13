@@ -46,26 +46,16 @@ class Order extends Model
         return $this->hasOne(Wallet::class, 'wallet_id');
     }
 
-    public static function getBuyOrdersGroupedByPrice()
+    public static function getOrderBook()
     {
         return static::query()
             ->whereIn('status', [
                 OrderStatusEnum::PENDING,
             ])
-            ->where('type', OrderTypeEnum::BUY)
             ->get()
-            ->groupBy('price');
-    }
-
-    public static function getSellOrdersGroupedByPrice()
-    {
-        return static::query()
-            ->whereIn('status', [
-                OrderStatusEnum::PENDING,
-            ])
-            ->where('type', OrderTypeEnum::SELL)
-            ->get()
-            ->groupBy('price');
+            ->groupBy(['price', function ($item) {
+                return $item['type'];
+            }]);
     }
 
     public function isBuy()

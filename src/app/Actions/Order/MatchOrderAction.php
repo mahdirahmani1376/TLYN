@@ -4,9 +4,11 @@ namespace App\Actions\Order;
 
 use App\Actions\Commission\CalculateCommissionAction;
 use App\Enums\OrderStatusEnum;
+use App\Enums\OrderTypeEnum;
 use App\Models\Order;
 use App\Models\Trade;
 use App\Models\Transaction;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -17,94 +19,74 @@ class MatchOrderAction
     )
     {
     }
-
     public function execute()
     {
-        $buyOrdersGroup = Order::getBuyOrdersGroupedByPrice();
-        $sellOrdersGroup = Order::getSellOrdersGroupedByPrice();
+        Order::getOrderBook()
+            ->filter(function (Collection $orderGroup, int $key) {
+                return $orderGroup->has(OrderTypeEnum::BUY->value, $orderGroup->has(OrderTypeEnum::SELL->value));
+            })
+            ->each(function ($item) {
+                $buyOrders = $item['buy'];
+                $sellOrders = $item['sell'];
 
-        foreach ($buyOrdersGroup as $buyGroupKey => $buyGroup) {
-            if (empty($sellOrdersGroup[$buyGroupKey])) {
-                continue;
-            }
+                $buyOrders->each(function (Order $buyOrder) use ($sellOrders) {
+                    $sellOrders->each(function (Order $sellOrder, $sellOrderKey) use ($buyOrder, $sellOrders) {
+                        if (empty($sellOrder->remaining_amount) || empty($buyOrder->remaining_amount)) {
+                            return false;
+                        }
+                        return $this->matchBuyAndSellOrders($buyOrder, $sellOrder);
+                    });
+                });
+            });
 
-            $matchedSellGroup = $sellOrdersGroup[$buyGroupKey];
-
-            $this->matchBuyAndSellOrders($buyGroup, $matchedSellGroup);
-
-        }
     }
 
-    private function matchBuyAndSellOrders(mixed $buyGroup, mixed $matchedSellGroup): void
+    private function matchBuyAndSellOrders(Order $buyOrder, Order $sellOrder): bool
     {
-        /** @var Order $buyOrder */
-        foreach ($buyGroup as $buyOrder) {
-
-            /** @var Order $sellOrder */
-            foreach ($matchedSellGroup as $sellOrder) {
-
-                if ($sellOrder->remaining_amount == 0) {
-                    break;
-                }
-
-                $minQuantityToMatch = min($buyOrder->remaining_amount, $sellOrder->remaining_amount);
-
-                DB::beginTransaction();
-
-                try {
-                    $sellOrder->lockForUpdate();
-                    $buyOrder->lockForUpdate();
-
-                    $commission = $this->calculateCommissionAction->execute($minQuantityToMatch, $buyOrder->price);
-
-                    $trade = Trade::create([
-                        'amount' => $minQuantityToMatch,
-                        'buy_order_id' => $buyOrder->id,
-                        'sell_order_id' => $sellOrder->id,
-                        'price' => $buyOrder->price,
-                        'total' => $buyOrder->price * $minQuantityToMatch,
-                        'commission' => $commission
-                    ]);
-
-                    $buyOrder->remaining_amount -= $minQuantityToMatch;
-                    $buyOrder->save();
-
-                    $sellOrder->remaining_amount -= $minQuantityToMatch;
-                    $sellOrder->save();
-
-                    $this->processBuyOrder($buyOrder, $trade);
-                    $this->processSellOrder($sellOrder, $trade);
-
-
-                    if ($sellOrder->remaining_amount == 0) {
-                        $this->markOrderAsFilled($sellOrder);
-                    }
-
-                    if ($buyOrder->remaining_amount == 0) {
-                        $this->markOrderAsFilled($buyOrder);
-                        DB::commit();
-                        break;
-                    }
-
-                    DB::commit();
-
-                } catch (\Exception $e) {
-                    dump($e->getMessage());
-                    Log::error("Order match failed", [
-                        'error' => $e->getMessage(),
-                        'buy_order_id' => $buyOrder->id ?? null,
-                        'sell_order_id' => $sellOrder->id ?? null
-                    ]);
-                    DB::rollBack();
-                }
-
-            }
+        DB::beginTransaction();
+        try {
+            $this->makeTrade($buyOrder, $sellOrder);
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->log($e, $buyOrder, $sellOrder);
+            DB::rollBack();
+            return false;
         }
 
     }
 
-    private function processBuyOrder(Order $buyOrder, Trade $trade)
+    private function makeTrade(Order $buyOrder, Order $sellOrder)
     {
+        $minQuantityToMatch = min($buyOrder->remaining_amount, $sellOrder->remaining_amount);
+
+        $sellOrder->lockForUpdate();
+        $buyOrder->lockForUpdate();
+
+        $commission = $this->calculateCommissionAction->execute($minQuantityToMatch, $buyOrder->price);
+
+        $trade = Trade::create([
+            'amount' => $minQuantityToMatch,
+            'buy_order_id' => $buyOrder->id,
+            'sell_order_id' => $sellOrder->id,
+            'price' => $buyOrder->price,
+            'total' => $buyOrder->price * $minQuantityToMatch,
+            'commission' => $commission
+        ]);
+
+        $this->processBuyOrder($buyOrder, $trade, $minQuantityToMatch);
+        $this->processSellOrder($sellOrder, $trade, $minQuantityToMatch);
+    }
+
+    private function processBuyOrder(Order $buyOrder, Trade $trade, $minQuantityToMatch)
+    {
+        $buyOrder->remaining_amount -= $minQuantityToMatch;
+        $buyOrder->save();
+
+        if ($buyOrder->remaining_amount == 0) {
+            $this->markOrderAsFilled($buyOrder);
+        }
+
         Transaction::create([
             'user_id' => $buyOrder->user_id,
             'type' => 'buy_order',
@@ -127,10 +109,18 @@ class MatchOrderAction
         $wallet->rial_balance -= $trade->total;
 
         $wallet->save();
+
     }
 
-    private function processSellOrder(Order $sellOrder, Trade $trade)
+    private function processSellOrder(Order $sellOrder, Trade $trade, $minQuantityToMatch)
     {
+        $sellOrder->remaining_amount -= $minQuantityToMatch;
+        $sellOrder->save();
+
+        if ($sellOrder->remaining_amount == 0) {
+            $this->markOrderAsFilled($sellOrder);
+        }
+
         Transaction::create([
             'user_id' => $sellOrder->user_id,
             'type' => 'sell_order',
@@ -154,13 +144,22 @@ class MatchOrderAction
 
         $wallet->save();
 
-
     }
 
     private function markOrderAsFilled(Order $order)
     {
         $order->status = OrderStatusEnum::FILLED;
         $order->save();
+    }
+
+    private function log(\Exception $e, $buyOrder, $sellOrder): void
+    {
+        dump($e->getMessage());
+        Log::error("Order match failed", [
+            'error' => $e->getMessage(),
+            'buy_order_id' => $buyOrder->id ?? null,
+            'sell_order_id' => $sellOrder->id ?? null
+        ]);
     }
 
 }
